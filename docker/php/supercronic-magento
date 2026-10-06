@@ -1,0 +1,3 @@
+* * * * * /bin/sh -c 'test -f /var/www/html/bin/magento && php -d newrelic.enabled=0 /var/www/html/bin/magento cron:run --group default'
+* * * * * /bin/sh -c 'test -f /var/www/html/bin/magento && php -d newrelic.enabled=0 /var/www/html/bin/magento cron:run --group index'
+* * * * * /bin/sh -c 'test -f /var/www/html/bin/magento && php -d newrelic.enabled=0 /var/www/html/bin/magento cron:run --group consumers'

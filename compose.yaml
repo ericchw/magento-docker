@@ -1,0 +1,212 @@
+name: magento249
+
+services:
+  nginx:
+    image: nginx:1.30.5-alpine3.24
+    depends_on:
+      php-fpm:
+        condition: service_started
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - magento-app:/var/www/html
+      - composer-cache:/tmp/composer-cache:ro
+      - ./docker/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx/certs:/etc/nginx/certs:ro
+    networks:
+      - magento
+
+  php-fpm:
+    build:
+      context: ./docker/php
+      args:
+        PHP_VERSION: "8.5"
+        COMPOSER_VERSION: "2.10.0"
+        NEW_RELIC_AGENT_VERSION: "12.10.0.39"
+    env_file:
+      - ./env/app.env
+      - ./env/composer.env
+      - ./env/db.env
+      - ./env/rabbitmq.env
+      - ./env/newrelic.env
+      - ./env/cron.env
+    environment:
+      PHP_IDE_CONFIG: serverName=magento249
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      #artemis:
+        #condition: service_started
+    volumes:
+      - magento-app:/var/www/html
+      - ./docker/php/conf.d/magento.ini:/usr/local/etc/php/conf.d/zz-magento.ini:ro
+      - composer-cache:/tmp/composer-cache
+    networks:
+      - magento
+
+  cron:
+    build:
+      context: ./docker/php
+      args:
+        PHP_VERSION: "8.5"
+        COMPOSER_VERSION: "2.10.0"
+        NEW_RELIC_AGENT_VERSION: "12.10.0.39"
+
+    user: www-data
+    entrypoint: ["/usr/local/bin/supercronic"]
+    command: ["/etc/supercronic/magento"]
+
+    env_file:
+      - ./env/app.env
+      - ./env/composer.env
+      - ./env/db.env
+      - ./env/rabbitmq.env
+      - ./env/newrelic.env
+      - ./env/cron.env
+
+    depends_on:
+      php-fpm:
+        condition: service_started
+
+    volumes:
+      - magento-app:/var/www/html
+      - ./docker/php/conf.d/magento.ini:/usr/local/etc/php/conf.d/zz-magento.ini:ro
+      - ./docker/php/supercronic-magento:/etc/supercronic/magento:ro
+      - composer-cache:/tmp/composer-cache
+
+    networks:
+      - magento
+
+  mariadb:
+    image: mariadb:12.3.3-noble
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --max_allowed_packet=256M
+      - --innodb-buffer-pool-size=768M
+      - --log-bin-trust-function-creators=1
+    env_file:
+      - ./env/db.env
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks:
+      - magento
+
+  opensearch:
+    image: opensearchproject/opensearch:3.3.0
+    env_file:
+      - ./env/opensearch.env
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cluster/health | grep -E 'green|yellow'"]
+      interval: 15s
+      timeout: 10s
+      retries: 30
+    networks:
+      - magento
+
+  rabbitmq:
+    image: rabbitmq:4.3.6-management
+    env_file:
+      - ./env/rabbitmq.env
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks:
+      - magento
+
+  #artemis:
+    #image: apache/artemis:2.57.0-alpine
+    #env_file:
+      #- ./env/artemis.env
+    ##ports:
+      ##- "61616:61616"
+      ##- "8161:8161"
+    #volumes:
+      #- artemis-data:/var/lib/artemis-instance
+    #networks:
+      #- magento
+
+  valkey:
+    image: valkey/valkey:9.0.2-alpine
+    env_file:
+      - ./env/valkey.env
+    command: ["valkey-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - valkey-data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks:
+      - magento
+
+  mailpit:
+    image: axllent/mailpit:v1.27.8
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    volumes:
+      - mailpit-data:/data
+    environment:
+      MP_DATABASE: /data/mailpit.db
+    networks:
+      - magento
+      
+  adminer:
+    image: adminer:5.4.1-standalone
+    ports:
+      - "8081:8080"
+    depends_on:
+      - mariadb
+    networks:
+      - magento
+
+networks:
+  magento:
+    driver: bridge
+
+volumes:
+  composer-cache:
+  mariadb-data:
+  opensearch-data:
+  rabbitmq-data:
+  #artemis-data:
+  valkey-data:
+  magento-app:
+  mailpit-data:

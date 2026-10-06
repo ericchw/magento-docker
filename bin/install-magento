@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+if [ -f .env ]; then
+  set -a
+  # shellcheck disable=SC1091
+  . ./.env
+  set +a
+fi
+
+for env_file in env/app.env env/composer.env env/db.env env/rabbitmq.env; do
+  if [ -f "$env_file" ]; then
+    set -a
+    # shellcheck disable=SC1090
+    . "./$env_file"
+    set +a
+  fi
+done
+
+if [ -f src/app/etc/env.php ]; then
+  echo "Magento is already configured at src/app/etc/env.php; refusing to rerun setup:install." >&2
+  echo "Use ./bin/magento-maintenance for maintenance, or ./restore.sh for an explicit restore." >&2
+  exit 1
+fi
+
+if ! docker compose ps --status running --services | grep -qx mariadb; then
+  echo "The MariaDB service is not running. Start the Compose stack before installing Magento." >&2
+  exit 1
+fi
+
+existing_tables="$(docker compose exec -T mariadb sh -lc 'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb -uroot "$MARIADB_DATABASE" -Nse "SHOW TABLES"')"
+if [ -n "$existing_tables" ]; then
+  echo "The Magento database is not empty; refusing to run setup:install over existing tables." >&2
+  echo "Use a fresh database or request an explicit restore/reset workflow." >&2
+  exit 1
+fi
+
+if [ ! -f src/bin/magento ]; then
+  echo "Magento is not installed in ./src yet. Creating project first..."
+
+  if [ -f src/.gitkeep ] && [ -z "$(find src -mindepth 1 ! -name .gitkeep -print -quit)" ]; then
+    rm -f src/.gitkeep
+  fi
+
+  if [ -n "${MAGENTO_MARKETPLACE_PUBLIC_KEY:-}" ] && [ -n "${MAGENTO_MARKETPLACE_PRIVATE_KEY:-}" ]; then
+    docker compose exec php-fpm composer config --global http-basic.repo.magento.com \
+      "${MAGENTO_MARKETPLACE_PUBLIC_KEY}" \
+      "${MAGENTO_MARKETPLACE_PRIVATE_KEY}"
+  fi
+
+  docker compose exec php-fpm composer create-project \
+    --repository-url=https://repo.magento.com/ \
+    magento/project-community-edition="${MAGENTO_CREATE_PROJECT_VERSION:-2.4.9}" \
+    .
+fi
+
+# Composer may have created root-owned files during project creation. Preserve
+# auth.json's private mode while giving the PHP-FPM worker ownership of it.
+docker compose exec -T -u root php-fpm sh -lc \
+  'composer_home="${COMPOSER_HOME:-/tmp/composer}"; [ ! -d "$composer_home" ] || chown -R www-data:www-data "$composer_home"'
+
+docker compose exec php-fpm bin/magento setup:install \
+  --base-url="${MAGENTO_BASE_URL:-http://daiwa-ubuntu-server/}" \
+  --base-url-secure="${MAGENTO_BASE_URL_SECURE:-https://daiwa-ubuntu-server/}" \
+  --use-secure=1 \
+  --use-secure-admin=1 \
+  --db-host=mariadb \
+  --db-name="${MARIADB_DATABASE:-magento}" \
+  --db-user="${MARIADB_USER:-magento}" \
+  --db-password="${MARIADB_PASSWORD:-magento}" \
+  --backend-frontname="${MAGENTO_BACKEND_FRONTNAME:-admin}" \
+  --admin-firstname="${MAGENTO_ADMIN_FIRSTNAME:-Admin}" \
+  --admin-lastname="${MAGENTO_ADMIN_LASTNAME:-User}" \
+  --admin-email="${MAGENTO_ADMIN_EMAIL:-admin@example.com}" \
+  --admin-user="${MAGENTO_ADMIN_USER:-admin}" \
+  --admin-password="${MAGENTO_ADMIN_PASSWORD:-Admin123!Admin}" \
+  --language=en_US \
+  --currency=CAD \
+  --timezone=America/Vancouver \
+  --use-rewrites=1 \
+  --search-engine=opensearch \
+  --opensearch-host=opensearch \
+  --opensearch-port=9200 \
+  --opensearch-index-prefix=magento2 \
+  --opensearch-enable-auth=0 \
+  --cache-backend=redis \
+  --cache-backend-redis-server=valkey \
+  --cache-backend-redis-db=0 \
+  --page-cache=redis \
+  --page-cache-redis-server=valkey \
+  --page-cache-redis-db=1 \
+  --session-save=redis \
+  --session-save-redis-host=valkey \
+  --session-save-redis-db=2 \
+  --amqp-host=rabbitmq \
+  --amqp-port=5672 \
+  --amqp-user="${RABBITMQ_DEFAULT_USER:-magento}" \
+  --amqp-password="${RABBITMQ_DEFAULT_PASS:-magento}" \
+  --amqp-virtualhost=/
+
+docker compose exec php-fpm bin/magento deploy:mode:set developer
+docker compose exec php-fpm bin/magento cache:disable full_page block_html layout
+docker compose exec php-fpm bin/magento cache:flush

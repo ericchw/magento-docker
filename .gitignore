@@ -1,0 +1,78 @@
+# ==========================================
+# Magento 2
+# ==========================================
+
+# Composer dependencies
+/src/vendor/
+
+# Generated files
+/src/generated/
+
+/src/var/
+!/src/var/.gitkeep
+
+# Generated static content
+/src/pub/static/
+/src/pub/media/
+
+# Local backup archives and restore safety dumps
+/backups/
+
+# Magento environment secrets
+/src/app/etc/env.php
+
+# Composer authentication / credentials
+/src/auth.json
+
+
+# ==========================================
+# Docker / Environment
+# ==========================================
+
+.env
+.env.local
+.env.*.local
+/env/*.env
+!/env/*.env.example
+/docker/nginx/certs/*.crt
+/docker/nginx/certs/*.key
+
+
+# ==========================================
+# IDE
+# ==========================================
+
+.idea/
+.vscode/
+*.iml
+
+
+# ==========================================
+# OS
+# ==========================================
+
+.DS_Store
+Thumbs.db
+
+
+# ==========================================
+# Node
+# ==========================================
+
+/node_modules/
+src/node_modules/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+
+# ==========================================
+# Logs / temporary
+# ==========================================
+
+*.log
+*.tmp
+*.swp
+*.swo
+*~
