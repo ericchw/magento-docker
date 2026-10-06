@@ -27,6 +27,7 @@ services:
     env_file:
       - ./env/app.env
       - ./env/composer.env
+      - ./env/hyva.env
       - ./env/db.env
       - ./env/rabbitmq.env
       - ./env/newrelic.env

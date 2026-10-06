@@ -29,6 +29,20 @@ if [ -n "${MAGENTO_MARKETPLACE_PUBLIC_KEY:-}" ] \
     "$MAGENTO_MARKETPLACE_PRIVATE_KEY"
 fi
 
+# Configure Hyvä's private Composer repository when credentials are supplied.
+if [ -n "${HYVA_PACKAGIST_KEY:-}" ] \
+  && [ -n "${HYVA_PACKAGIST_PROJECT:-}" ]; then
+  mkdir -p "${COMPOSER_HOME:-/tmp/composer}"
+  composer config --global --auth \
+    http-basic.hyva-themes.repo.packagist.com token \
+    "$HYVA_PACKAGIST_KEY"
+  if [ -f /var/www/html/composer.json ]; then
+    composer --working-dir=/var/www/html config \
+      repositories.hyva-private-packagist composer \
+      "https://hyva-themes.repo.packagist.com/${HYVA_PACKAGIST_PROJECT}/"
+  fi
+fi
+
 # -----------------------------------------------------------------------------
 # Magento project creation
 # -----------------------------------------------------------------------------

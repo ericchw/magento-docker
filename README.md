@@ -98,6 +98,8 @@ MAGENTO_MARKETPLACE_PUBLIC_KEY=your-public-key
 MAGENTO_MARKETPLACE_PRIVATE_KEY=your-private-key
 ```
 
+For Hyvä, put the Packagist key and project name from Hyvä Portal → Licenses → Composer credentials in `env/hyva.env` as `HYVA_PACKAGIST_KEY` and `HYVA_PACKAGIST_PROJECT`. Compose passes these values to `php-fpm`, and the PHP entrypoint configures Composer's private Hyvä repository when both values are set. The actual `env/hyva.env` file is ignored by Git; use `env/hyva.env.example` as a template. After adding credentials, recreate `php-fpm` so Composer can load the credentials, then follow Hyvä's theme installation and Tailwind build instructions.
+
 To install manually (if automatic installation was disabled):
 
 ```bash
