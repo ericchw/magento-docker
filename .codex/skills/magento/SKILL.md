@@ -9,7 +9,8 @@ Use this skill for Magento work in this repository. Magento runs in the `php-fpm
 
 ## Repository rules
 
-- Run Magento CLI commands inside the `php-fpm` container as `docker compose exec php-fpm bin/magento ...`.
+- Run Magento CLI and Composer commands inside the `php-fpm` container as `www-data`: `docker compose exec -u www-data php-fpm ...`. The container's default exec user is `root`; avoid running commands that generate or modify Magento files as root.
+- After commands that generate or deploy files, verify the affected paths are owned by `www-data` (or a group writable by PHP-FPM) and writable by the PHP-FPM user. Correct ownership narrowly on affected generated paths if needed; never use `777`.
 - The stack is configured for developer mode; do not switch to production mode unless explicitly requested.
 - Do not use `docker compose down -v`, remove volumes, reset the database, or overwrite Magento configuration unless the user explicitly requests a destructive reset.
 - Do not run setup installation over an existing installation. The installer refuses to overwrite the configured app or a non-empty database.
@@ -24,7 +25,7 @@ Use this skill for Magento work in this repository. Magento runs in the `php-fpm
 Flush Magento caches:
 
 ```bash
-docker compose exec php-fpm bin/magento cache:flush
+docker compose exec -u www-data php-fpm bin/magento cache:flush
 ```
 
 Use `cache:clean` only when the requested scope is Magento cache types without flushing the backend storage.
@@ -34,7 +35,7 @@ Use `cache:clean` only when the requested scope is Magento cache types without f
 Compile dependency injection:
 
 ```bash
-docker compose exec php-fpm bin/magento setup:di:compile
+docker compose exec -u www-data php-fpm bin/magento setup:di:compile
 ```
 
 This is appropriate after PHP class or DI configuration changes. In developer mode it is usually unnecessary for routine code edits; run it when requested or when a workflow requires generated DI code.
@@ -44,8 +45,8 @@ This is appropriate after PHP class or DI configuration changes. In developer mo
 Force deploy English (US) static content, then flush cache:
 
 ```bash
-docker compose exec php-fpm bin/magento setup:static-content:deploy -f en_US
-docker compose exec php-fpm bin/magento cache:flush
+docker compose exec -u www-data php-fpm bin/magento setup:static-content:deploy -f en_US
+docker compose exec -u www-data php-fpm bin/magento cache:flush
 ```
 
 Use the requested locale(s) when specified. Do not guess additional locales.
@@ -55,9 +56,9 @@ Use the requested locale(s) when specified. Do not guess additional locales.
 Run the common combined deployment sequence:
 
 ```bash
-docker compose exec php-fpm bin/magento setup:di:compile
-docker compose exec php-fpm bin/magento setup:static-content:deploy -f en_US
-docker compose exec php-fpm bin/magento cache:flush
+docker compose exec -u www-data php-fpm bin/magento setup:di:compile
+docker compose exec -u www-data php-fpm bin/magento setup:static-content:deploy -f en_US
+docker compose exec -u www-data php-fpm bin/magento cache:flush
 ```
 
 This can take time and regenerate files under `src/generated` and `src/pub/static`. Use it when explicitly requested or when the code change requires it; do not make it the default for every change.
@@ -67,9 +68,9 @@ This can take time and regenerate files under `src/generated` and `src/pub/stati
 Enable the Magento TwoFactorAuth module and flush cache:
 
 ```bash
-docker compose exec php-fpm bin/magento module:enable Magento_TwoFactorAuth
-docker compose exec php-fpm bin/magento setup:upgrade
-docker compose exec php-fpm bin/magento cache:flush
+docker compose exec -u www-data php-fpm bin/magento module:enable Magento_TwoFactorAuth
+docker compose exec -u www-data php-fpm bin/magento setup:upgrade
+docker compose exec -u www-data php-fpm bin/magento cache:flush
 ```
 
 This changes module state and database schema. Admin users may need to configure an authenticator at their next login.
@@ -79,9 +80,9 @@ This changes module state and database schema. Admin users may need to configure
 Disable Magento's admin TwoFactorAuth module and flush cache:
 
 ```bash
-docker compose exec php-fpm bin/magento module:disable Magento_TwoFactorAuth
-docker compose exec php-fpm bin/magento setup:upgrade
-docker compose exec php-fpm bin/magento cache:flush
+docker compose exec -u www-data php-fpm bin/magento module:disable Magento_TwoFactorAuth
+docker compose exec -u www-data php-fpm bin/magento setup:upgrade
+docker compose exec -u www-data php-fpm bin/magento cache:flush
 ```
 
 Disabling 2FA reduces admin login protection. Clearly state this consequence when carrying out the action. Use the module command instead of editing `app/etc/config.php` by hand.
@@ -92,8 +93,8 @@ Inspect service and Magento status:
 
 ```bash
 docker compose ps
-docker compose exec php-fpm bin/magento --version
-docker compose exec php-fpm bin/magento deploy:mode:show
+docker compose exec -u www-data php-fpm bin/magento --version
+docker compose exec -u www-data php-fpm bin/magento deploy:mode:show
 ```
 
 ### `$magento logs`
@@ -111,19 +112,19 @@ Add the affected service name when investigating another component.
 Toggle Magento maintenance mode:
 
 ```bash
-docker compose exec php-fpm bin/magento maintenance:enable
-docker compose exec php-fpm bin/magento maintenance:disable
+docker compose exec -u www-data php-fpm bin/magento maintenance:enable
+docker compose exec -u www-data php-fpm bin/magento maintenance:disable
 ```
 
-Check status with `docker compose exec php-fpm bin/magento maintenance:status`. Enabling maintenance mode affects storefront availability.
+Check status with `docker compose exec -u www-data php-fpm bin/magento maintenance:status`. Enabling maintenance mode affects storefront availability.
 
 ### `$magento index`
 
 Inspect and reindex Magento indexes:
 
 ```bash
-docker compose exec php-fpm bin/magento indexer:status
-docker compose exec php-fpm bin/magento indexer:reindex
+docker compose exec -u www-data php-fpm bin/magento indexer:status
+docker compose exec -u www-data php-fpm bin/magento indexer:reindex
 ```
 
 Use a specific indexer ID when only one index needs rebuilding.
@@ -133,8 +134,8 @@ Use a specific indexer ID when only one index needs rebuilding.
 Run Magento database and module upgrade steps, then flush cache:
 
 ```bash
-docker compose exec php-fpm bin/magento setup:upgrade
-docker compose exec php-fpm bin/magento cache:flush
+docker compose exec -u www-data php-fpm bin/magento setup:upgrade
+docker compose exec -u www-data php-fpm bin/magento cache:flush
 ```
 
 This can modify the database. Run it when requested or when a module change requires it.
@@ -144,10 +145,10 @@ This can modify the database. Run it when requested or when a module change requ
 Run the Magento CLI inside the container, for example:
 
 ```bash
-docker compose exec php-fpm bin/magento config:show
-docker compose exec php-fpm bin/magento cron:run
-docker compose exec php-fpm bin/magento indexer:status
-docker compose exec php-fpm composer install
+docker compose exec -u www-data php-fpm bin/magento config:show
+docker compose exec -u www-data php-fpm bin/magento cron:run
+docker compose exec -u www-data php-fpm bin/magento indexer:status
+docker compose exec -u www-data php-fpm composer install
 ```
 
 For a manual fresh install, follow `README.md` and `./bin/install-magento`. Never infer that an existing database or project should be reset.

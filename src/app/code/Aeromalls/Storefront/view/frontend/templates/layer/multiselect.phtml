@@ -1,0 +1,32 @@
+<?php
+declare(strict_types=1);
+/** @var \Magento\LayeredNavigation\Block\Navigation\FilterRenderer $block */
+/** @var \Magento\Framework\Escaper $escaper */
+$filter = $block->getData('aeromalls_filter');
+$selected = $filter->getSelectedValues();
+?>
+<ul class="items space-y-2" x-data="aeroFilterOption"
+    aria-label="<?= $escaper->escapeHtmlAttr(__('%1 filter options', $filter->getName())) ?>">
+    <?php foreach ($filterItems as $item): ?>
+        <?php
+        $value = (string)$item->getValue();
+        $checked = in_array($value, $selected, true);
+        $values = $checked ? array_values(array_diff($selected, [$value])) : array_merge($selected, [$value]);
+        $url = $block->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true, '_query' => [
+            $filter->getRequestVar() => $values ? implode(',', $values) : null,
+            'p' => null,
+        ]]);
+        $disabled = !$checked && (int)$item->getCount() === 0;
+        ?>
+        <li>
+            <label class="flex items-center gap-2 py-1 <?= $disabled ? 'text-gray-500' : 'cursor-pointer' ?>" x-cloak>
+                <input type="checkbox" class="form-checkbox shrink-0" value="<?= $escaper->escapeHtmlAttr($value) ?>"
+                       data-url="<?= $escaper->escapeUrl($url) ?>" @change="applyOption"
+                       <?= $checked ? 'checked' : '' ?> <?= $disabled ? 'disabled' : '' ?>>
+                <span class="grow"><?= $escaper->escapeHtml($item->getLabel()) ?></span>
+                <span class="text-sm">(<?= (int)$item->getCount() ?>)</span>
+            </label>
+            <noscript><a class="block py-1" href="<?= $escaper->escapeUrl($url) ?>"><?= $escaper->escapeHtml($item->getLabel()) ?> (<?= (int)$item->getCount() ?>)<?= $checked ? ' ✓' : '' ?></a></noscript>
+        </li>
+    <?php endforeach; ?>
+</ul>

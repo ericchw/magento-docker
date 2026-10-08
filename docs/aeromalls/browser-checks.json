@@ -1,0 +1,132 @@
+{
+  "checks": [
+    {
+      "width": 360,
+      "status": 200,
+      "title": "Build your next setup.",
+      "bodyWidth": 345,
+      "viewport": 360,
+      "searchCount": 1,
+      "css": [
+        "http://daiwa-ubuntu-server/static/version1791415254/frontend/Aeromalls/aeromalls/en_US/css/styles.css",
+        "http://daiwa-ubuntu-server/static/version1791415254/frontend/Aeromalls/aeromalls/en_US/StripeIntegration_Payments/css/wallets.css"
+      ]
+    },
+    {
+      "width": 390,
+      "status": 200,
+      "title": "Build your next setup.",
+      "bodyWidth": 375,
+      "viewport": 390,
+      "searchCount": 1,
+      "css": [
+        "http://daiwa-ubuntu-server/static/version1791415254/frontend/Aeromalls/aeromalls/en_US/css/styles.css",
+        "http://daiwa-ubuntu-server/static/version1791415254/frontend/Aeromalls/aeromalls/en_US/StripeIntegration_Payments/css/wallets.css"
+      ]
+    },
+    {
+      "width": 768,
+      "status": 200,
+      "title": "Build your next setup.",
+      "bodyWidth": 753,
+      "viewport": 768,
+      "searchCount": 1,
+      "css": [
+        "http://daiwa-ubuntu-server/static/version1791415254/frontend/Aeromalls/aeromalls/en_US/css/styles.css",
+        "http://daiwa-ubuntu-server/static/version1791415254/frontend/Aeromalls/aeromalls/en_US/StripeIntegration_Payments/css/wallets.css"
+      ]
+    },
+    {
+      "width": 1024,
+      "status": 200,
+      "title": "Build your next setup.",
+      "bodyWidth": 1009,
+      "viewport": 1024,
+      "searchCount": 1,
+      "css": [
+        "http://daiwa-ubuntu-server/static/version1791415254/frontend/Aeromalls/aeromalls/en_US/css/styles.css",
+        "http://daiwa-ubuntu-server/static/version1791415254/frontend/Aeromalls/aeromalls/en_US/StripeIntegration_Payments/css/wallets.css"
+      ]
+    },
+    {
+      "width": 1440,
+      "status": 200,
+      "title": "Build your next setup.",
+      "bodyWidth": 1425,
+      "viewport": 1440,
+      "searchCount": 1,
+      "css": [
+        "http://daiwa-ubuntu-server/static/version1791415254/frontend/Aeromalls/aeromalls/en_US/css/styles.css",
+        "http://daiwa-ubuntu-server/static/version1791415254/frontend/Aeromalls/aeromalls/en_US/StripeIntegration_Payments/css/wallets.css"
+      ]
+    },
+    {
+      "width": 1920,
+      "status": 200,
+      "title": "Build your next setup.",
+      "bodyWidth": 1905,
+      "viewport": 1920,
+      "searchCount": 1,
+      "css": [
+        "http://daiwa-ubuntu-server/static/version1791415254/frontend/Aeromalls/aeromalls/en_US/css/styles.css",
+        "http://daiwa-ubuntu-server/static/version1791415254/frontend/Aeromalls/aeromalls/en_US/StripeIntegration_Payments/css/wallets.css"
+      ]
+    },
+    {
+      "mobileMenuOpen": true
+    },
+    {
+      "mobileMenuClosed": true
+    },
+    {
+      "endpoint": {
+        "status": 200,
+        "cache": "max-age=0, no-store, private",
+        "data": {
+          "query": "B000",
+          "suggestions": [],
+          "items": [
+            {
+              "id": 1,
+              "sku": "B0000000001",
+              "mpn": "ACFRE00180A",
+              "name": "Arctic Liquid Freezer III Pro 360 360mm CPU Liquid Cooler ACFRE00180A",
+              "url": "http://daiwa-ubuntu-server/arctic-liquid-freezer-iii-pro-360-360mm-cpu-liquid-cooler-acfre00180a.html",
+              "image": {
+                "url": "http://daiwa-ubuntu-server/static/version1791415254/frontend/Hyva/default/en_US/Magento_Catalog/images/product/placeholder/thumbnail.jpg",
+                "alt": "Arctic Liquid Freezer III Pro 360 360mm CPU Liquid Cooler ACFRE00180A"
+              },
+              "price": {
+                "currency": "CAD",
+                "display_type": "fixed",
+                "final": 199.99,
+                "regular": 199.99,
+                "formatted_final": "CA$199.99",
+                "formatted_regular": "CA$199.99",
+                "tax_display": "excluding",
+                "excluding_tax": 199.99,
+                "formatted_excluding_tax": "CA$199.99"
+              },
+              "is_salable": true
+            }
+          ],
+          "total_count": 1,
+          "all_results_url": "http://daiwa-ubuntu-server/catalogsearch/result/?q=B000"
+        }
+      }
+    },
+    {
+      "searchExpanded": "true",
+      "options": 1
+    },
+    {
+      "builder": 200,
+      "builderTitle": "PC Builder / Components"
+    },
+    {
+      "categories": 200,
+      "categoryCards": 3
+    }
+  ],
+  "errors": []
+}

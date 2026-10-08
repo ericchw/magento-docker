@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+run() { docker compose exec -T -u www-data php-fpm "$@"; }
+# Stop before mutations if generated paths are not writable by PHP-FPM.
+run sh -c 'for path in generated pub/static var/view_preprocessed var; do test -w "$path" || { printf "Not writable by www-data: %s\n" "$path" >&2; exit 1; }; done'
+run bin/magento setup:di:compile
+run bin/magento setup:static-content:deploy -f --theme Aeromalls/aeromalls en_US
+docker compose exec -T -u www-data -e "AEROMALLS_HOME_HOST=${1:-daiwa-ubuntu-server}" php-fpm php < bin/aeromalls-home.php
+run bin/magento cache:clean config layout block_html full_page
+run sh -c 'for path in generated pub/static var/view_preprocessed; do test -w "$path" || exit 1; stat -c "%U:%G %a %n" "$path"; done'

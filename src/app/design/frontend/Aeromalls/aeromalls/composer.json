@@ -1,0 +1,15 @@
+{
+  "name": "aeromalls/theme-aeromalls",
+  "description": "Aeromalls Hyva child theme",
+  "type": "magento2-theme",
+  "version": "1.0.0",
+  "require": {
+    "hyva-themes/magento2-default-theme": "^1.5",
+    "aeromalls/module-storefront": "^1.0"
+  },
+  "autoload": {
+    "files": [
+      "registration.php"
+    ]
+  }
+}

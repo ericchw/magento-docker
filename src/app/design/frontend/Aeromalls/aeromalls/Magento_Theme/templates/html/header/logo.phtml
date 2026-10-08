@@ -1,0 +1,22 @@
+<?php
+declare(strict_types=1);
+
+/** @var \Magento\Theme\Block\Html\Header\Logo $block */
+/** @var \Magento\Framework\Escaper $escaper */
+/** @var \Hyva\Theme\Model\ViewModelRegistry $viewModels */
+$vm = $viewModels->require(\Aeromalls\Storefront\ViewModel\Storefront::class);
+$pathResolver = $viewModels->require(\Hyva\Theme\ViewModel\Logo\LogoPathResolver::class);
+$sizeResolver = $viewModels->require(\Hyva\Theme\ViewModel\Logo\LogoSizeResolver::class);
+$logoSrc = $pathResolver->getLogoSrc($block->getData('logo_file'));
+$logoWidth = $sizeResolver->getWidth() ?: 216;
+$logoHeight = $sizeResolver->getHeight() ?: 63;
+$logoAlt = $block->getLogoAlt() ?: $vm->value('general/brand', 'Aeromalls');
+?>
+<a href="<?= $escaper->escapeUrl($block->getUrl('')) ?>"
+   class="aero-brand-logo flex items-center shrink-0"
+   aria-label="<?= $escaper->escapeHtmlAttr(__('Go to Home page')) ?>">
+    <img src="<?= $escaper->escapeUrl($logoSrc) ?>"
+         alt="<?= $escaper->escapeHtmlAttr($logoAlt) ?>"
+         width="<?= (int)$logoWidth ?>" height="<?= (int)$logoHeight ?>"
+         loading="eager">
+</a>

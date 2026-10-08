@@ -1,0 +1,5 @@
+<?php
+/** @var \Magento\Framework\Escaper $escaper */
+$vm = $block instanceof \Aeromalls\Storefront\Block\Content ? $block->vm() : $viewModels->require(\Aeromalls\Storefront\ViewModel\Storefront::class);
+?>
+<div class="container py-10"><h1 class="text-3xl font-semibold mb-8"><?= $escaper->escapeHtml(__('Product Categories')) ?></h1><div class="aero-category-grid"><?php foreach ($vm->navigation() as $node): ?><section class="bg-white p-6 rounded-lg border"><h2 class="text-xl font-semibold"><a href="<?= $escaper->escapeUrl($node['url']) ?>"><?= $escaper->escapeHtml($node['name']) ?></a></h2><?php foreach ($node['children'] as $child): ?><a class="block py-2" href="<?= $escaper->escapeUrl($child['url']) ?>"><?= $escaper->escapeHtml($child['name']) ?></a><?php foreach ($child['children'] as $leaf): ?><a class="block pl-4 py-2 text-sm" href="<?= $escaper->escapeUrl($leaf['url']) ?>"><?= $escaper->escapeHtml($leaf['name']) ?></a><?php endforeach ?><?php endforeach ?></section><?php endforeach ?></div><?php if (!$vm->navigation()): ?><p><?= $escaper->escapeHtml(__('Product categories are not available yet.')) ?></p><?php endif ?></div>

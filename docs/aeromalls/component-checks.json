@@ -1,0 +1,6 @@
+{
+  "raceUsesLatest": true,
+  "imeNoRequestDuringComposition": true,
+  "imeRequestAfterComposition": true,
+  "errors": []
+}

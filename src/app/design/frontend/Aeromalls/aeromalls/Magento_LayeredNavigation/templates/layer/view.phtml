@@ -1,0 +1,76 @@
+<?php
+declare(strict_types=1);
+
+use Hyva\Theme\ViewModel\LucideIcons;
+
+/** @var \Magento\LayeredNavigation\Block\Navigation $block */
+/** @var \Magento\Framework\Escaper $escaper */
+$icons = $viewModels->require(LucideIcons::class);
+$menuThreshold = 8;
+?>
+<?php if ($block->canShowBlock()): ?>
+<div role="region" aria-label="<?= $escaper->escapeHtmlAttr(__('Product filters')) ?>"
+     class="block my-6" x-data="aeroLayeredNavigation" @resize.window.debounce="checkViewport">
+    <h2 id="filters-heading">
+        <button type="button" class="flex items-center justify-between w-full text-start"
+                @click="toggle" aria-controls="filters-content" aria-expanded="true"
+                :aria-expanded="expanded" :disabled="desktop">
+            <span class="text-md md:text-3xl font-medium uppercase"><?= $escaper->escapeHtml(__('Shop By')) ?></span>
+            <span class="md:hidden" aria-hidden="true"><?= $icons->chevronDownHtml('', 24, 24) ?></span>
+        </button>
+    </h2>
+    <div id="filters-content" class="filter-content pt-4" :hidden="hidden">
+        <?= $block->getChildHtml('state') ?>
+        <a href="#product-list" class="sr-only focus:not-sr-only btn btn-primary"><?= $escaper->escapeHtml(__('Skip to product list')) ?></a>
+        <?php foreach ($block->getFilters() as $filter): ?>
+            <?php
+            $count = $filter->getItemsCount();
+            if (!$count) { continue; }
+            $requestVar = $filter->getRequestVar();
+            $menu = $count > $menuThreshold && !in_array($requestVar, ['availability', 'price'], true);
+            $renderer = $block->getChildBlock('renderer')->setFilterTitle($filter->getName());
+            ?>
+            <?php if ($requestVar === 'availability'): ?>
+                <section class="aero-filter-section card my-4 p-5" data-filter="availability" aria-label="<?= $escaper->escapeHtmlAttr(__('In stock')) ?>">
+                    <?= /* @noEscape */ $renderer->render($filter) ?>
+                </section>
+            <?php elseif ($menu): ?>
+                <details class="aero-filter-section group card my-4 p-0" data-filter="<?= $escaper->escapeHtmlAttr($requestVar) ?>">
+                    <summary class="flex justify-between items-center cursor-pointer list-none py-4 px-5">
+                        <h3 class="text-lg font-semibold"><?= $escaper->escapeHtml($filter->getName()) ?></h3>
+                        <?= $icons->chevronDownHtml('transition-transform group-open:rotate-180', 20, 20, ['aria-hidden' => 'true']) ?>
+                    </summary>
+                    <div class="aero-filter-menu py-4 px-5 border-t border-gray-300">
+                        <?= /* @noEscape */ $renderer->render($filter) ?>
+                    </div>
+                </details>
+            <?php else: ?>
+                <section class="aero-filter-section card my-4 p-0" data-filter="<?= $escaper->escapeHtmlAttr($requestVar) ?>">
+                    <h3 class="text-lg font-semibold py-4 px-5"><?= $escaper->escapeHtml($filter->getName()) ?></h3>
+                    <div class="py-4 px-5 border-t border-gray-300">
+                        <?= /* @noEscape */ $renderer->render($filter) ?>
+                    </div>
+                </section>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </div>
+</div>
+<script>
+window.addEventListener('alpine:init', () => {
+    Alpine.data('aeroLayeredNavigation', () => ({
+        expanded: true, desktop: false,
+        init() { this.checkViewport(); },
+        checkViewport() {
+            this.desktop = window.matchMedia('(min-width: 768px)').matches;
+            if (this.desktop) this.expanded = true;
+        },
+        toggle() { if (!this.desktop) this.expanded = !this.expanded; },
+        get hidden() { return !this.expanded && !this.desktop; }
+    }));
+    Alpine.data('aeroFilterOption', () => ({
+        applyOption() { window.location.assign(this.$event.target.dataset.url); }
+    }));
+}, { once: true });
+</script>
+<?php $hyvaCsp->registerInlineScript() ?>
+<?php endif; ?>

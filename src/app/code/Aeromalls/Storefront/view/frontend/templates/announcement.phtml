@@ -1,0 +1,13 @@
+<?php
+/** @var \Magento\Framework\Escaper $escaper */
+$vm = $block instanceof \Aeromalls\Storefront\Block\Content ? $block->vm() : $viewModels->require(\Aeromalls\Storefront\ViewModel\Storefront::class);
+?>
+<?php if ($vm->enabled('announcement/ownership_enabled') || $vm->enabled('announcement/shipping_enabled')): ?>
+<div class="aero-announcement"><div class="container flex flex-wrap justify-center gap-4">
+<?php if ($vm->enabled('announcement/ownership_enabled')): ?><span><?= $escaper->escapeHtml($vm->value('announcement/ownership')) ?></span><?php endif ?>
+<?php if ($vm->enabled('announcement/shipping_enabled')): ?>
+<?php $policy = $vm->safeUrl($vm->value('announcement/policy_url')); ?>
+<?php if ($policy): ?><a href="<?= $escaper->escapeUrl($policy) ?>"><?php endif ?><?= $escaper->escapeHtml($vm->value('announcement/shipping')) ?><?php if ($policy): ?></a><?php endif ?>
+<?php endif ?></div></div><?php endif ?>
+<?php $links = $vm->links();
+if ($links): ?><div class="aero-utility"><div class="container"><?php foreach ($links as $link): ?><a href="<?= $escaper->escapeUrl($link['url']) ?>"><?= $escaper->escapeHtml(__($link['label'])) ?></a><?php endforeach ?></div></div><?php endif ?>

@@ -76,3 +76,6 @@ yarn-error.log*
 *.swp
 *.swo
 *~
+
+# Theme build dependencies
+/src/app/design/frontend/**/node_modules/

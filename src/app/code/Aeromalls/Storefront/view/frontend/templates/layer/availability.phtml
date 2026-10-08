@@ -1,0 +1,22 @@
+<?php
+declare(strict_types=1);
+/** @var \Magento\LayeredNavigation\Block\Navigation\FilterRenderer $block */
+/** @var \Magento\Framework\Escaper $escaper */
+$filter = $block->getData('aeromalls_filter');
+$on = $filter->getSelectedValue() === 'in_stock';
+$count = (int)($filterItems[0]->getCount() ?? 0);
+$url = $block->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true, '_query' => ['availability' => $on ? null : 'in_stock', 'p' => null]]);
+?>
+<div x-data="aeroFilterOption" class="aero-stock-toggle">
+    <label class="flex items-center justify-between gap-3 cursor-pointer" x-cloak>
+        <span class="font-semibold"><?= $escaper->escapeHtml(__('In stock')) ?> <span class="text-sm font-normal">(<?= $count ?>)</span></span>
+        <span class="flex items-center gap-2">
+            <span class="text-sm"><?= $escaper->escapeHtml($on ? __('On') : __('Off')) ?></span>
+            <input type="checkbox" role="switch" class="sr-only aero-toggle-input"
+                   aria-label="<?= $escaper->escapeHtmlAttr(__('Show in-stock products only')) ?>"
+                   data-url="<?= $escaper->escapeUrl($url) ?>" @change="applyOption" <?= $on ? 'checked' : '' ?>>
+            <span class="form-toggle-body" aria-hidden="true"></span>
+        </span>
+    </label>
+    <noscript><a class="flex justify-between" href="<?= $escaper->escapeUrl($url) ?>"><?= $escaper->escapeHtml(__('In stock')) ?> (<?= $count ?>) — <?= $escaper->escapeHtml($on ? __('On') : __('Off')) ?></a></noscript>
+</div>

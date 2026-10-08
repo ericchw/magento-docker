@@ -1,0 +1,11 @@
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd"><body>
+<referenceBlock name="head.additional"><block name="head.js" template="Hyva_Theme::page/js/variables.phtml"/><block name="head.hyva-scripts" template="Hyva_Theme::page/js/hyva.phtml"/></referenceBlock>
+<referenceContainer name="header.container"><block class="Aeromalls\Storefront\Block\Content" name="aeromalls.announcement" template="Aeromalls_Storefront::announcement.phtml" before="header-content"/></referenceContainer>
+<referenceBlock name="header-content"><arguments><argument name="show_compare" xsi:type="boolean">false</argument></arguments></referenceBlock>
+<referenceBlock name="topmenu_generic"><arguments><argument name="ttl" xsi:type="number">0</argument><argument name="cache_lifetime" xsi:type="null"/></arguments><action method="setTemplate"><argument name="template" xsi:type="string">Aeromalls_Storefront::navigation.phtml</argument></action></referenceBlock>
+<referenceBlock name="topmenu_mobile" remove="true"/><referenceBlock name="topmenu_desktop" remove="true"/>
+<referenceBlock name="header-search" template="Aeromalls_Storefront::search.phtml"/>
+<referenceContainer name="footer"><block class="Aeromalls\Storefront\Block\Content" name="aeromalls.footer" template="Aeromalls_Storefront::footer.phtml"/></referenceContainer>
+<referenceBlock name="footer-content" remove="true"/>
+<referenceContainer name="before.body.end"><block class="Aeromalls\Storefront\Block\Content" name="aeromalls.assistant" template="Aeromalls_Storefront::assistant.phtml"/></referenceContainer>
+<referenceBlock name="header.customer.logged.out.links"><block name="aeromalls.customer.forgot.link" class="Hyva\Theme\Block\SortableItemInterface" template="Aeromalls_Storefront::forgot-link.phtml"><arguments><argument name="sort_order" xsi:type="number">30</argument></arguments></block></referenceBlock></body></page>

@@ -1,0 +1,92 @@
+{
+  "checks": [
+    {
+      "query": "B000",
+      "status": 200,
+      "count": 1,
+      "ids": [
+        1
+      ],
+      "normalizedLength": 4
+    },
+    {
+      "query": "ACFR",
+      "status": 200,
+      "count": 1,
+      "ids": [
+        1
+      ],
+      "normalizedLength": 4
+    },
+    {
+      "query": "Arct",
+      "status": 200,
+      "count": 1,
+      "ids": [
+        1
+      ],
+      "normalizedLength": 4
+    },
+    {
+      "query": "B0000000001",
+      "status": 200,
+      "count": 1,
+      "ids": [
+        1
+      ],
+      "normalizedLength": 11
+    },
+    {
+      "query": "ACFRE00180A",
+      "status": 200,
+      "count": 1,
+      "ids": [
+        1
+      ],
+      "normalizedLength": 11
+    },
+    {
+      "query": "zzzzdoesnotexist",
+      "status": 200,
+      "count": 0,
+      "ids": [],
+      "normalizedLength": 16
+    },
+    {
+      "query": "卡卡卡卡卡卡卡卡卡卡卡卡卡卡卡卡卡卡卡卡",
+      "status": 200,
+      "count": 0,
+      "ids": [],
+      "normalizedLength": 128
+    },
+    {
+      "autocomplete": 1
+    },
+    {
+      "activeOption": "aero-product-1"
+    },
+    {
+      "escapeClosed": true
+    },
+    {
+      "forgotLink": true
+    },
+    {
+      "productUrl": "http://daiwa-ubuntu-server/arctic-liquid-freezer-iii-pro-360-360mm-cpu-liquid-cooler-acfre00180a.html",
+      "productTitle": "\n            Arctic Liquid Freezer III Pro 360 360mm CPU Liquid Cooler ACFRE00180A        "
+    },
+    {
+      "cartCount": 1
+    },
+    {
+      "checkoutStatus": 200,
+      "checkoutUrl": "https://daiwa-ubuntu-server/checkout#shipping",
+      "lumaAssets": true
+    },
+    {
+      "testCartCleanup": "remove clicked",
+      "cartEmpty": true
+    }
+  ],
+  "errors": []
+}

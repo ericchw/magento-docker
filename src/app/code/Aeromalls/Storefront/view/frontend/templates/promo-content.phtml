@@ -1,0 +1,5 @@
+<?php
+/** @var \Magento\Framework\Escaper $escaper */
+$vm = $block instanceof \Aeromalls\Storefront\Block\Content ? $block->vm() : $viewModels->require(\Aeromalls\Storefront\ViewModel\Storefront::class);
+?>
+<div class="max-w-lg"><button type="button" class="btn float-right" @click="closePromo" aria-label="<?= $escaper->escapeHtmlAttr(__('Close promotion')) ?>">×</button><h2 class="text-2xl font-semibold mb-4"><?= $escaper->escapeHtml($vm->value('promo/title')) ?></h2><picture><?php if ($mobile = $vm->image('promo/mobile_image')): ?><source media="(max-width:767px)" srcset="<?= $escaper->escapeUrl($mobile) ?>"><?php endif ?><img src="<?= $escaper->escapeUrl($vm->image('promo/image')) ?>" alt="<?= $escaper->escapeHtmlAttr($vm->value('promo/alt')) ?>" width="640" height="400" class="w-full h-auto"></picture><?php if ($url = $vm->safeUrl($vm->value('promo/url'))): ?><a class="btn btn-primary mt-4" href="<?= $escaper->escapeUrl($url) ?>"><?= $escaper->escapeHtml($vm->value('promo/cta') ?: __('Learn more')) ?></a><?php endif ?></div>

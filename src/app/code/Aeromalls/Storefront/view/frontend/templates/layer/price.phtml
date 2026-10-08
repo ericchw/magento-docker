@@ -1,0 +1,102 @@
+<?php
+declare(strict_types=1);
+
+/** @var \Magento\LayeredNavigation\Block\Navigation\FilterRenderer $block */
+/** @var \Magento\Framework\Escaper $escaper */
+/** @var \Aeromalls\Storefront\Model\Layer\Filter\PriceRange $filter */
+$filter = $block->getData('aeromalls_filter');
+$range = $filter->getSliderData();
+?>
+<?php if ($range !== null): ?>
+<form class="aero-price-filter" x-data="aeroPriceRange"
+      data-min="<?= $escaper->escapeHtmlAttr((string)$range['min']) ?>"
+      data-max="<?= $escaper->escapeHtmlAttr((string)$range['max']) ?>"
+      data-from="<?= $escaper->escapeHtmlAttr((string)$range['from']) ?>"
+      data-to="<?= $escaper->escapeHtmlAttr((string)$range['to']) ?>"
+      data-rate="<?= $escaper->escapeHtmlAttr((string)$range['rate']) ?>"
+      data-currency="<?= $escaper->escapeHtmlAttr($range['currency']) ?>"
+      @submit.prevent="apply">
+    <div x-cloak>
+        <p class="text-sm mb-3" aria-live="polite" x-text="rangeLabel"></p>
+        <div class="aero-price-track mb-5" :style="trackStyle">
+            <div class="aero-price-track-fill" aria-hidden="true"></div>
+            <input class="aero-price-handle" type="range" :min="minimum" :max="maximum" step="0.01"
+                   x-model.number="from" @input="clampFrom" :aria-valuetext="minimumLabel"
+                   aria-label="<?= $escaper->escapeHtmlAttr(__('Minimum price')) ?>">
+            <input class="aero-price-handle" type="range" :min="minimum" :max="maximum" step="0.01"
+                   x-model.number="to" @input="clampTo" :aria-valuetext="maximumLabel"
+                   aria-label="<?= $escaper->escapeHtmlAttr(__('Maximum price')) ?>">
+        </div>
+        <div class="flex gap-3 mb-3">
+            <label class="flex-1 min-w-0 text-sm">
+                <span class="block mb-1"><?= $escaper->escapeHtml(__('Min')) ?></span>
+                <input class="form-input w-full min-w-0" type="number" :min="minimum" :max="to" step="0.01"
+                       x-model.number="from" @change="clampFrom" required
+                       aria-label="<?= $escaper->escapeHtmlAttr(__('Minimum price')) ?>">
+            </label>
+            <label class="flex-1 min-w-0 text-sm">
+                <span class="block mb-1"><?= $escaper->escapeHtml(__('Max')) ?></span>
+                <input class="form-input w-full min-w-0" type="number" :min="from" :max="maximum" step="0.01"
+                       x-model.number="to" @change="clampTo" required
+                       aria-label="<?= $escaper->escapeHtmlAttr(__('Maximum price')) ?>">
+            </label>
+        </div>
+        <button type="submit" class="btn btn-primary w-full justify-center"><?= $escaper->escapeHtml(__('Apply price')) ?></button>
+    </div>
+</form>
+<script>
+window.addEventListener('alpine:init', () => {
+    Alpine.data('aeroPriceRange', () => ({
+        minimum: 0, maximum: 0, from: 0, to: 0, rate: 1, currency: '',
+        init() {
+            const data = this.$root.dataset;
+            this.minimum = Number(data.min);
+            this.maximum = Number(data.max);
+            this.from = Number(data.from);
+            this.to = Number(data.to);
+            this.rate = Number(data.rate);
+            this.currency = data.currency;
+        },
+        clampFrom() {
+            this.from = Math.max(this.minimum, Math.min(Number(this.from) || 0, Number(this.to)));
+        },
+        clampTo() {
+            this.to = Math.min(this.maximum, Math.max(Number(this.to) || 0, Number(this.from)));
+        },
+        get minimumLabel() { return hyva.formatPrice(this.from); },
+        get maximumLabel() { return hyva.formatPrice(this.to); },
+        get rangeLabel() { return this.minimumLabel + ' – ' + this.maximumLabel + ' (' + this.currency + ')'; },
+        get trackStyle() {
+            const span = this.maximum - this.minimum;
+            const left = span > 0 ? 100 * (this.from - this.minimum) / span : 0;
+            const right = span > 0 ? 100 * (this.to - this.minimum) / span : 100;
+            return '--aero-range-left:' + left + '%;--aero-range-right:' + right + '%';
+        },
+        apply() {
+            this.clampFrom();
+            this.clampTo();
+            if (!Number.isFinite(this.from) || !Number.isFinite(this.to) || this.rate <= 0) return;
+            const url = new URL(window.location.href);
+            url.searchParams.delete('p');
+            if (this.from <= this.minimum && this.to >= this.maximum) {
+                url.searchParams.delete('price');
+            } else {
+                const from = (this.from / this.rate).toFixed(4);
+                const to = ((this.to + 0.01) / this.rate).toFixed(4);
+                url.searchParams.set('price', from + '-' + to);
+            }
+            window.location.assign(url.href);
+        }
+    }));
+}, { once: true });
+</script>
+<?php $hyvaCsp->registerInlineScript() ?>
+<?php endif; ?>
+<!-- Native price links remain available when JavaScript is disabled. -->
+<noscript>
+    <ul class="items">
+        <?php foreach ($filterItems as $item): ?>
+            <li><a class="block py-1" href="<?= $escaper->escapeUrl($item->getUrl()) ?>"><?= $escaper->escapeHtml(strip_tags((string)$item->getLabel())) ?></a></li>
+        <?php endforeach; ?>
+    </ul>
+</noscript>

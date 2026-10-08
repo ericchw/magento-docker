@@ -1,0 +1,5 @@
+<?php
+/** @var \Magento\Framework\Escaper $escaper */
+$vm = $block instanceof \Aeromalls\Storefront\Block\Content ? $block->vm() : $viewModels->require(\Aeromalls\Storefront\ViewModel\Storefront::class);
+?>
+<?php if ($vm->assistant()): ?><div class="chat-stub-wrap" data-component="pc-assistant"><a class="btn btn-primary rounded-full shadow-lg" href="<?= $escaper->escapeUrl($vm->route('pcbuilder')) ?>"><?= $escaper->escapeHtml(__($vm->value('assistant/label'))) ?></a><?php if ($vm->value('assistant/mode') === 'preview'): ?><span class="block bg-white text-xs p-2"><?= $escaper->escapeHtml(__('UI preview — AI is not connected')) ?></span><?php endif ?></div><?php endif ?>

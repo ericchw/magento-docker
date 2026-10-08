@@ -1,0 +1,1 @@
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd"><event name="admin_system_config_changed_section_aeromalls_storefront"><observer name="aeromalls_clean_public_content" instance="Aeromalls\Storefront\Observer\CleanCache"/></event></config>

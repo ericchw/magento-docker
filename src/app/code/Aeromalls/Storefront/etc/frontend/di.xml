@@ -1,0 +1,31 @@
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Aeromalls\Storefront\Controller\Index\Index">
+        <plugin name="aeromalls_home_redirect" type="Aeromalls\Storefront\Plugin\HomeRedirect" />
+    </type>
+    <type name="Hyva\Theme\ViewModel\ProductList">
+        <plugin name="aeromalls_native_product_tags" type="Aeromalls\Storefront\Plugin\ProductTags" />
+    </type>
+    <type name="Magento\OpenSearch\Model\OpenSearch">
+        <plugin name="aeromalls_preview_timeout" type="Aeromalls\Storefront\Plugin\SearchTimeout" />
+        <plugin name="aeromalls_filter_aggregations" type="Aeromalls\Storefront\Plugin\FilterAggregations" />
+    </type>
+    <virtualType name="AeromallsSearchCollectionFactory" type="Magento\Catalog\Model\ResourceModel\Product\CollectionFactory">
+        <arguments>
+            <argument name="instanceName" xsi:type="string">Magento\CatalogSearch\Model\ResourceModel\Fulltext\Collection</argument>
+        </arguments>
+    </virtualType>
+    <type name="Aeromalls\Storefront\Model\Search">
+        <arguments>
+            <argument name="products" xsi:type="object">AeromallsSearchCollectionFactory</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Catalog\Model\Layer\FilterList">
+        <plugin name="aeromalls_product_filters" type="Aeromalls\Storefront\Plugin\ProductFilters" />
+    </type>
+    <type name="Magento\LayeredNavigation\Block\Navigation\FilterRenderer">
+        <plugin name="aeromalls_filter_renderer" type="Aeromalls\Storefront\Plugin\FilterRenderer" />
+    </type>
+    <type name="Magento\Elasticsearch\SearchAdapter\Aggregation\Builder\Dynamic">
+        <plugin name="aeromalls_price_bounds" type="Aeromalls\Storefront\Plugin\PriceBounds" />
+    </type>
+</config>

@@ -1,0 +1,106 @@
+<requests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Search/etc/search_request.xsd">
+  <request query="aeromalls_autocomplete" index="catalogsearch_fulltext">
+    <dimensions>
+      <dimension name="scope" value="default" />
+    </dimensions>
+    <queries>
+      <query xsi:type="boolQuery" name="aeromalls_autocomplete" boost="1">
+        <queryReference clause="should" ref="search" />
+        <queryReference clause="should" ref="partial_search" />
+        <queryReference clause="must" ref="category" />
+        <queryReference clause="must" ref="price" />
+        <queryReference clause="must" ref="visibility" />
+      </query>
+      <query xsi:type="matchQuery" value="$search_term$" name="search">
+        <match field="*" />
+      </query>
+      <query xsi:type="matchQuery" value="$search_term$" name="partial_search">
+        <match field="*" />
+        <match field="name" matchCondition="match_phrase_prefix" />
+        <match field="sku" matchCondition="match_phrase_prefix" />
+        <match field="mpn" matchCondition="match_phrase_prefix" />
+      </query>
+      <query xsi:type="filteredQuery" name="category">
+        <filterReference clause="must" ref="category_filter" />
+      </query>
+      <query xsi:type="filteredQuery" name="price">
+        <filterReference clause="must" ref="price_filter" />
+      </query>
+      <query xsi:type="filteredQuery" name="visibility">
+        <filterReference clause="must" ref="visibility_filter" />
+      </query>
+    </queries>
+    <filters>
+      <filter xsi:type="termFilter" name="category_filter" field="category_ids" value="$category_ids$" />
+      <filter xsi:type="rangeFilter" name="price_filter" field="price" from="$price.from$" to="$price.to$" />
+      <filter xsi:type="termFilter" name="visibility_filter" field="visibility" value="$visibility$" />
+    </filters>
+    <aggregations>
+      <bucket name="price_bucket" field="price" xsi:type="dynamicBucket" method="$price_dynamic_algorithm$">
+        <metrics>
+          <metric type="count" />
+        </metrics>
+      </bucket>
+      <bucket name="category_bucket" field="category_ids" xsi:type="termBucket">
+        <metrics>
+          <metric type="count" />
+        </metrics>
+        <parameters>
+          <parameter name="include" value="$category_ids_to_aggregate$" />
+        </parameters>
+      </bucket>
+    </aggregations>
+    <from>0</from>
+    <size>100</size>
+  </request>
+  <request query="catalog_view_container" index="catalogsearch_fulltext">
+    <queries>
+      <query xsi:type="boolQuery" name="catalog_view_container" boost="1">
+        <queryReference clause="must" ref="aeromalls_availability" />
+      </query>
+      <query xsi:type="filteredQuery" name="aeromalls_availability">
+        <filterReference clause="must" ref="aeromalls_availability_filter" />
+      </query>
+    </queries>
+    <filters>
+      <filter xsi:type="termFilter" name="aeromalls_availability_filter" field="is_out_of_stock" value="$is_out_of_stock$" />
+    </filters>
+    <aggregations>
+      <bucket name="is_out_of_stock_bucket" field="is_out_of_stock" xsi:type="termBucket">
+        <metrics>
+          <metric type="count" />
+        </metrics>
+      </bucket>
+      <bucket name="aeromalls_price_bounds_bucket" field="price" xsi:type="dynamicBucket" method="manual">
+        <metrics>
+          <metric type="count" />
+        </metrics>
+      </bucket>
+    </aggregations>
+  </request>
+  <request query="quick_search_container" index="catalogsearch_fulltext">
+    <queries>
+      <query xsi:type="boolQuery" name="quick_search_container" boost="1">
+        <queryReference clause="must" ref="aeromalls_availability" />
+      </query>
+      <query xsi:type="filteredQuery" name="aeromalls_availability">
+        <filterReference clause="must" ref="aeromalls_availability_filter" />
+      </query>
+    </queries>
+    <filters>
+      <filter xsi:type="termFilter" name="aeromalls_availability_filter" field="is_out_of_stock" value="$is_out_of_stock$" />
+    </filters>
+    <aggregations>
+      <bucket name="is_out_of_stock_bucket" field="is_out_of_stock" xsi:type="termBucket">
+        <metrics>
+          <metric type="count" />
+        </metrics>
+      </bucket>
+      <bucket name="aeromalls_price_bounds_bucket" field="price" xsi:type="dynamicBucket" method="manual">
+        <metrics>
+          <metric type="count" />
+        </metrics>
+      </bucket>
+    </aggregations>
+  </request>
+</requests>

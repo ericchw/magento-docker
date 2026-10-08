@@ -1,0 +1,60 @@
+<?php
+/** @var \Magento\Framework\Escaper $escaper */
+$vm = $block instanceof \Aeromalls\Storefront\Block\Content ? $block->vm() : $viewModels->require(\Aeromalls\Storefront\ViewModel\Storefront::class);
+?>
+<?php
+$nodes = $vm->navigation();
+$render = function (array $nodes, string $prefix) use (&$render, $escaper) { ?>
+<ul class="aero-nav-list"><?php foreach ($nodes as $node): $id = $prefix.'-'.$node['id']; ?>
+<li class="aero-nav-item"><a href="<?= $escaper->escapeUrl($node['url']) ?>"><?= $escaper->escapeHtml($node['name']) ?></a>
+<?php if ($node['children']): ?><details data-nav-details><summary aria-controls="<?= $escaper->escapeHtmlAttr($id) ?>" aria-expanded="false"><span aria-hidden="true">⌄</span><span class="sr-only"><?= $escaper->escapeHtml(__('Expand %1', $node['name'])) ?></span></summary><div class="aero-nav-panel" id="<?= $escaper->escapeHtmlAttr($id) ?>"><?php $render($node['children'], $prefix); ?><a class="block p-3" href="<?= $escaper->escapeUrl($node['url']) ?>"><?= $escaper->escapeHtml(__('View all %1', $node['name'])) ?></a></div></details><?php endif ?></li>
+<?php endforeach ?></ul><?php };
+?>
+<nav class="header-nav-bar" aria-label="<?= $escaper->escapeHtmlAttr(__('Product categories')) ?>" x-data="aeroNavigation">
+<div class="container aero-desktop-nav flex items-center gap-4 py-1">
+<?php if ($vm->enabled('builder/enabled')): ?><a class="font-semibold text-primary p-3" href="<?= $escaper->escapeUrl($vm->route('pcbuilder')) ?>"><?= $escaper->escapeHtml(__($vm->value('builder/label'))) ?></a><?php endif ?>
+<?php $render($nodes, 'desktop'); ?></div>
+<div class="aero-mobile-menu">
+<dialog id="aero-mobile-nav" class="aero-mobile-dialog" x-ref="drawer" aria-label="<?= $escaper->escapeHtmlAttr(__('Store navigation')) ?>">
+<button type="button" class="btn mb-4" @click="close"><?= $escaper->escapeHtml(__('Close menu')) ?></button>
+<?php if ($vm->enabled('builder/enabled')): ?><a class="block p-3 text-primary font-semibold" href="<?= $escaper->escapeUrl($vm->route('pcbuilder')) ?>"><?= $escaper->escapeHtml(__($vm->value('builder/label'))) ?></a><?php endif ?>
+<?php $render($nodes, 'mobile'); ?><div class="border-t mt-4 pt-4"><?php foreach ($vm->links() as $link): ?><a class="block p-3" href="<?= $escaper->escapeUrl($link['url']) ?>"><?= $escaper->escapeHtml(__($link['label'])) ?></a><?php endforeach ?></div></dialog>
+<noscript><a href="<?= $escaper->escapeUrl($vm->route('aeromalls/categories')) ?>"><?= $escaper->escapeHtml(__('Browse all categories')) ?></a></noscript>
+</div></nav>
+<script>
+window.addEventListener('alpine:init',()=>Alpine.data('aeroNavigation',()=>({
+ init(){
+  const hover = window.matchMedia('(min-width:1024px) and (hover:hover) and (pointer:fine)');
+  const timers = new WeakMap();
+  const closeBranch = d => { clearTimeout(timers.get(d)); d.open=false; d.querySelectorAll('details[open]').forEach(child=>child.open=false); };
+  const positionPanel = d => {
+   const panel=d.querySelector(':scope > .aero-nav-panel');
+   if (!panel || !d.closest('.aero-desktop-nav')) return;
+   panel.classList.remove('aero-nav-panel-left');
+   if (panel.getBoundingClientRect().right > window.innerWidth-16) panel.classList.add('aero-nav-panel-left');
+  };
+  this.$el.querySelectorAll('details').forEach(d=>{
+   d.addEventListener('toggle',()=>{d.querySelector('summary').setAttribute('aria-expanded',String(d.open));if(d.open)positionPanel(d);});
+   const item=d.parentElement;
+   item.addEventListener('pointerenter',e=>{
+    if(!hover.matches || e.pointerType!=='mouse' || !item.closest('.aero-desktop-nav'))return;
+    clearTimeout(timers.get(d));
+    Array.from(item.parentElement.children).forEach(sibling=>{if(sibling!==item){const other=sibling.querySelector(':scope > details');if(other)closeBranch(other);}});
+    d.open=true;
+    positionPanel(d);
+   });
+   item.addEventListener('pointerleave',e=>{
+    if(!hover.matches || e.pointerType!=='mouse' || !item.closest('.aero-desktop-nav'))return;
+    timers.set(d,setTimeout(()=>{if(!item.contains(document.activeElement))closeBranch(d);},180));
+   });
+  });
+  this.$el.addEventListener('keydown',e=>{if(e.key==='Escape'){const d=e.target.closest('details');if(d){d.open=false;d.querySelector('summary').focus();}}});
+  document.addEventListener('click',e=>{if(!this.$el.contains(e.target))this.$el.querySelectorAll('details[open]').forEach(d=>d.open=false);});
+  this.$refs.drawer.addEventListener('close',()=>document.documentElement.style.removeProperty('overflow'));
+  window.addEventListener('toggle-cart',()=>this.close());
+ },
+ open(){this.$dispatch('aero-overlay-open');this.$refs.drawer.showModal();document.documentElement.style.overflow='hidden';},
+ close(){this.$refs.drawer.close();}
+})),{once:true});
+</script>
+<?php $hyvaCsp->registerInlineScript() ?>

@@ -1,0 +1,25 @@
+<?php
+declare(strict_types=1);
+/** @var \Magento\LayeredNavigation\Block\Navigation\FilterRenderer $block */
+/** @var \Magento\Framework\Escaper $escaper */
+$filter = $block->getData('aeromalls_filter');
+$on = in_array('1', $filter->getSelectedValues(), true);
+$count = 0;
+foreach ($filterItems as $item) {
+    if ((string)$item->getValue() === '1') { $count = (int)$item->getCount(); }
+}
+$url = $block->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true, '_query' => [$filter->getRequestVar() => $on ? null : '1', 'p' => null]]);
+?>
+<div x-data="aeroFilterOption" class="aero-stock-toggle">
+    <label class="flex items-center justify-between gap-3 cursor-pointer" x-cloak>
+        <span><?= $escaper->escapeHtml(__('Yes only')) ?> <span class="text-sm">(<?= $count ?>)</span></span>
+        <span class="flex items-center gap-2">
+            <span class="text-sm"><?= $escaper->escapeHtml($on ? __('On') : __('Off')) ?></span>
+            <input type="checkbox" role="switch" class="sr-only aero-toggle-input"
+                   aria-label="<?= $escaper->escapeHtmlAttr(__('Filter %1 by Yes', $filter->getName())) ?>"
+                   data-url="<?= $escaper->escapeUrl($url) ?>" @change="applyOption" <?= $on ? 'checked' : '' ?>>
+            <span class="form-toggle-body" aria-hidden="true"></span>
+        </span>
+    </label>
+    <noscript><a href="<?= $escaper->escapeUrl($url) ?>"><?= $escaper->escapeHtml(__('Yes only')) ?> — <?= $escaper->escapeHtml($on ? __('On') : __('Off')) ?></a></noscript>
+</div>

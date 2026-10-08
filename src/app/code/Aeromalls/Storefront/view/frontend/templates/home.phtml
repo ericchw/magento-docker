@@ -1,0 +1,16 @@
+<?php
+/** @var \Magento\Framework\Escaper $escaper */
+$vm = $block instanceof \Aeromalls\Storefront\Block\Content ? $block->vm() : $viewModels->require(\Aeromalls\Storefront\ViewModel\Storefront::class);
+?>
+<div class="container py-8 md:py-12">
+<?php if ($hero = $block->cms('general/hero_block')): ?><?= /* @noEscape */ $hero ?><?php else: ?>
+<section class="aero-hero"><div><span class="text-sm tracking-widest uppercase text-red-300"><?= $escaper->escapeHtml($vm->value('general/brand', 'Aeromalls')) ?></span><h1 class="mt-4"><?= $escaper->escapeHtml(__($vm->value('general/headline'))) ?></h1><p><?= $escaper->escapeHtml(__($vm->value('general/intro'))) ?></p><div class="flex flex-wrap gap-3"><a class="btn btn-primary" href="<?= $escaper->escapeUrl($vm->route('aeromalls/categories')) ?>"><?= $escaper->escapeHtml(__('Explore products')) ?></a><?php if ($vm->enabled('builder/enabled')): ?><a class="btn bg-white text-slate-900" href="<?= $escaper->escapeUrl($vm->route('pcbuilder')) ?>"><?= $escaper->escapeHtml(__('Browse PC components')) ?></a><?php endif ?></div></div><div class="aero-category-grid"><?php foreach (array_slice($vm->navigation(), 0, 6) as $node): ?><a class="aero-category-card" href="<?= $escaper->escapeUrl($node['url']) ?>"><?= $escaper->escapeHtml($node['name']) ?><span aria-hidden="true">↗</span></a><?php endforeach ?></div></section>
+<?php endif ?>
+<?php if ($vm->navigation()): ?><section class="my-12"><h2 class="text-2xl font-semibold mb-5"><?= $escaper->escapeHtml(__('Shop by category')) ?></h2><div class="aero-category-grid"><?php foreach ($vm->navigation() as $node): ?><a class="aero-category-card" href="<?= $escaper->escapeUrl($node['url']) ?>"><?= $escaper->escapeHtml($node['name']) ?><span aria-hidden="true">→</span></a><?php endforeach ?></div></section><?php endif ?>
+<?php if ($deals = $block->deals()): ?><section data-component="weekly-deals"><?= /* @noEscape */ $deals ?><?php $cat = $vm->category((int)$vm->value('deals/category')); ?><a class="btn" href="<?= $escaper->escapeUrl($cat['url']) ?>"><?= $escaper->escapeHtml(__($vm->value('deals/view_all'))) ?></a></section><?php endif ?>
+<?php if ($partners = $vm->partners()): ?><section class="my-12 container-fluid gov-marquee-container" data-component="partner-logos"><h2 class="text-2xl font-semibold mb-5"><?= $escaper->escapeHtml(__('Partners')) ?></h2><div class="aero-partners"><?php foreach ($partners as $partner): ?>
+<?php if ($partner['url']): ?><a href="<?= $escaper->escapeUrl($partner['url']) ?>" <?php if (!empty($partner['new_tab'])): ?>target="_blank" rel="noopener noreferrer"<?php endif ?>><?php else: ?><div><?php endif ?>
+<img src="<?= $escaper->escapeUrl($partner['image_url']) ?>" alt="<?= $escaper->escapeHtmlAttr($partner['alt'] ?: $partner['name']) ?>" width="160" height="72" loading="lazy">
+<?php if ($partner['url']): ?></a><?php else: ?></div><?php endif ?><?php endforeach ?></div></section><?php endif ?>
+</div>
+<?= $block->getLayout()->createBlock(\Aeromalls\Storefront\Block\Content::class)->setTemplate('Aeromalls_Storefront::promo.phtml')->toHtml() ?>

@@ -1,0 +1,7 @@
+<?php
+/** @var \Magento\Framework\Escaper $escaper */
+$vm = $block instanceof \Aeromalls\Storefront\Block\Content ? $block->vm() : $viewModels->require(\Aeromalls\Storefront\ViewModel\Storefront::class);
+?>
+<div class="container py-10"><section class="max-w-3xl mb-10"><span class="text-primary font-semibold"><?= $escaper->escapeHtml(__('YOUR NEXT PC')) ?></span><h1 class="text-4xl font-semibold mt-3 mb-5"><?= $escaper->escapeHtml(__($vm->value('builder/label'))) ?></h1><p class="text-lg text-slate-600"><?= $escaper->escapeHtml(__('Browse component categories, open product details and choose your parts.')) ?></p><p class="mt-4"><?= $escaper->escapeHtml(__('Compatibility validation and a complete build total are not available on this page.')) ?></p></section>
+<?php if ($vm->enabled('builder/enabled') && $categories = $vm->builderCategories()): ?><div class="aero-category-grid"><?php foreach ($categories as $item): ?><a class="aero-category-card" href="<?= $escaper->escapeUrl($item['category']['url']) ?>"><div><span class="text-sm text-primary"><?= $escaper->escapeHtml(__($item['label'])) ?></span><h2 class="text-lg font-semibold"><?= $escaper->escapeHtml($item['category']['name']) ?></h2></div><span aria-hidden="true">→</span></a><?php endforeach ?></div><?php else: ?><p class="p-6 bg-white border rounded-lg"><?= $escaper->escapeHtml(__('Component categories have not been configured yet.')) ?></p><?php endif ?>
+<div class="mt-10"><?= /* @noEscape */ $block->cms('builder/intro_block') ?></div></div>
