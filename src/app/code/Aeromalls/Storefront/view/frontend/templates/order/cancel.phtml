@@ -1,0 +1,15 @@
+<?php
+/** @var \Magento\Framework\View\Element\Template $block */
+/** @var \Magento\Framework\Escaper $escaper */
+$order = $block->getData('order') ?: $block->getOrder();
+$eligibility = $block->getData('view_model');
+?>
+<?php if ($order && $eligibility->isEligible($order)): ?>
+    <button type="button" class="aero-order-action aero-order-action-cancel" data-aero-order-cancel
+            data-order-id="<?= (int)$order->getId() ?>" data-order-number="<?= $escaper->escapeHtmlAttr($order->getIncrementId()) ?>"
+            aria-haspopup="dialog" aria-controls="aero-order-cancel-dialog"
+            aria-label="<?= $escaper->escapeHtmlAttr(__('Cancel order %1', $order->getIncrementId())) ?>">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/></svg>
+        <span><?= $escaper->escapeHtml(__('Cancel')) ?></span>
+    </button>
+<?php endif ?>

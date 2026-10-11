@@ -1,0 +1,65 @@
+<?php
+/** @var \Hyva\Theme\ViewModel\HyvaCsp $hyvaCsp */
+?>
+<script>
+(() => {
+ const install = () => {
+  if (typeof SnapSlider === 'undefined' || SnapSlider.aeroPageBuilderSupport) return;
+  const BaseSlider = SnapSlider;
+  SnapSlider = class extends BaseSlider {
+   constructor(el, options = {}) {
+    const isPageBuilder = el.dataset.contentType === 'slider';
+    super(el, isPageBuilder ? {...options, loop: el.dataset.infiniteLoop === 'true'} : options);
+    if (!isPageBuilder || !this.track) return;
+    el.aeroPageBuilderSlider = this;
+    this.aeroAbort = new AbortController();
+    this.aeroReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const configuredDelay = Number(el.dataset.autoplaySpeed);
+    this.aeroDelay = Number.isFinite(configuredDelay) && configuredDelay > 0 ? configuredDelay : 4000;
+    this.aeroAutoplay = el.dataset.autoplay === 'true';
+    this.aeroVisible = false;
+    this.aeroHover = false;
+    const listen = (target, event, callback) => target.addEventListener(event, callback, {signal: this.aeroAbort.signal});
+    listen(el, 'pointerenter', event => {if (event.pointerType === 'mouse') {this.aeroHover = true; this.aeroSchedule();}});
+    listen(el, 'pointerleave', event => {if (event.pointerType === 'mouse') {this.aeroHover = false; this.aeroSchedule();}});
+    listen(el, 'focusin', () => this.aeroSchedule());
+    listen(el, 'focusout', () => queueMicrotask(() => this.aeroSchedule()));
+    listen(el, 'pointerdown', () => {clearTimeout(this.aeroTimer);});
+    listen(el, 'pointerup', () => this.aeroSchedule());
+    listen(el, 'pointercancel', () => this.aeroSchedule());
+    listen(el, 'slideChange', () => this.aeroSchedule());
+    listen(document, 'visibilitychange', () => this.aeroSchedule());
+    listen(this.aeroReducedMotion, 'change', () => this.aeroSchedule());
+    this.aeroVisibilityObserver = new IntersectionObserver(entries => {
+     this.aeroVisible = entries[0].isIntersecting;
+     this.aeroSchedule();
+    }, {threshold: 0.2});
+    this.aeroVisibilityObserver.observe(el);
+   }
+   aeroSchedule() {
+    clearTimeout(this.aeroTimer);
+    if (!this.aeroAutoplay || !this.aeroVisible || this.aeroHover || document.hidden || this.aeroReducedMotion.matches || this.el.contains(document.activeElement) || !this.el.isConnected) return;
+    this.aeroTimer = setTimeout(() => {
+     const {isAtEnd, hasNoOverflow} = this.getInViewItems();
+     if (hasNoOverflow || (isAtEnd && !this.useLoop)) return;
+     this.goToSlideDir('next');
+     this.aeroSchedule();
+    }, this.aeroDelay);
+   }
+   destroy() {
+    clearTimeout(this.aeroTimer);
+    this.aeroVisibilityObserver?.disconnect();
+    this.aeroAbort?.abort();
+    if (this.el?.aeroPageBuilderSlider === this) delete this.el.aeroPageBuilderSlider;
+    super.destroy();
+   }
+  };
+  SnapSlider.aeroPageBuilderSupport = true;
+ };
+ // Hyvä creates its Page Builder sliders in a window DOMContentLoaded listener.
+ // The document listener runs first, so the existing initializer uses this extension.
+ if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, {once:true});
+ else install();
+})();
+</script>
+<?php $hyvaCsp->registerInlineScript() ?>

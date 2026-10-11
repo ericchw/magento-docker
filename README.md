@@ -156,3 +156,22 @@ docker compose down -v
 ```
 
 `docker compose down -v` deletes database, search, queue, and cache volumes.
+
+## Aeromalls user guides
+
+Detailed guides are kept in `docs/` (Traditional Chinese / Hong Kong):
+
+- [Customer order cancellation](docs/customer-order-cancellation.zh-HK.md)
+- [Order numbering and the one-time migration](docs/order-numbering.zh-HK.md)
+- [Stripe payment retries and webhook troubleshooting](docs/stripe-payment-retry.zh-HK.md)
+- [Page Builder brand marquee and slider](docs/pagebuilder-marquee.zh-HK.md)
+- [OpenSearch recovery](docs/opensearch-troubleshooting.zh-HK.md)
+
+The payment features require the separately installed Stripe Payments extension
+(the implementation was developed against version 4.7.0). It is not included in
+the repository's Composer lockfile. Page Builder and the licensed Hyvä theme
+are also required.
+
+Database changes described in the guides are not applied by a Git checkout.
+The order-number migration is a manual, one-time script targeting order entity
+ID 1; review its target and take a backup before using it.

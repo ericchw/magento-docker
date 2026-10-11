@@ -1,0 +1,21 @@
+<?php
+/** @var \Hyva\Theme\ViewModel\HyvaCsp $hyvaCsp */
+?>
+<script>
+(() => {
+ let width = 0;
+ const update = () => {
+  const next = document.body ? document.body.clientWidth : document.documentElement.clientWidth;
+  if (next === width) return;
+  width = next;
+  document.documentElement.style.setProperty('--aero-viewport-width', width + 'px');
+ };
+ update();
+ window.addEventListener('resize', update, {passive:true});
+ if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', update, {once:true});
+ const observer = new ResizeObserver(update);
+ observer.observe(document.documentElement);
+ if (document.body) observer.observe(document.body);
+})();
+</script>
+<?php $hyvaCsp->registerInlineScript() ?>

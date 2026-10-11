@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="sales.order.buttons">
+            <block class="Magento\Sales\Block\Order\Info" name="aeromalls.order.view.cancel" template="Aeromalls_Storefront::order/cancel.phtml" after="-">
+                <arguments><argument name="view_model" xsi:type="object">Aeromalls\Storefront\ViewModel\OrderCancellation</argument></arguments>
+            </block>
+        </referenceBlock>
+        <referenceContainer name="before.body.end">
+            <block class="Magento\Framework\View\Element\Template" name="aeromalls.order.cancel.dialog" template="Aeromalls_Storefront::order/cancel-dialog.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

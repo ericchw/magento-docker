@@ -1,0 +1,12 @@
+<div class="pagebuilder-content-type pagebuilder-content-type-affordance" event="{ mouseover: onMouseOver, mouseout: onMouseOut }" mouseoverBubble="false">
+ <render args="getOptions().template"></render>
+ <div attr="data.main.attributes" css="data.main.css" ko-style="data.main.style" style="padding:18px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:10px;">
+  <button type="button" class="action-secondary aero-marquee-add-logo" data-bind="click: addLogo" style="margin-bottom:12px;">+ Add Logo</button>
+  <strong style="display:block;margin-bottom:12px;">Brand Logo Marquee — use + Add Logo or drag Images here. Each image has its own Link and Open in new tab setting.</strong>
+  <div class="element-children content-type-container" each="contentType.getChildren()" attr="{id: contentType.id + '-children'}" data-bind="sortable: getSortableOptions()" style="min-height:120px;">
+   <div class="pagebuilder-drop-indicator"></div>
+   <div class="pagebuilder-content-type-wrapper" template="{name: preview.template, data: preview, afterRender: function () { preview.dispatchAfterRenderEvent.apply(preview, arguments); }}" attr="{id:id}" css="{'pagebuilder-content-type-hidden': !preview.display()}"></div>
+   <div if="$index() === $parent.contentType.getChildren()().length - 1" class="pagebuilder-drop-indicator"></div>
+  </div>
+ </div>
+</div>

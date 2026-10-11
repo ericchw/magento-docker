@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="sales_order_extra_actions"/>
+    <body>
+        <referenceContainer name="content">
+            <block class="Magento\Framework\View\Element\Template" name="aeromalls.order.cancel.dialog" template="Aeromalls_Storefront::order/cancel-dialog.phtml" after="sales.order.history"/>
+        </referenceContainer>
+        <referenceBlock name="order-list-extra-action-titles">
+            <block class="Magento\Framework\View\Element\Template" name="aeromalls.order.cancel.title" as="aeromalls_cancel" template="Aeromalls_Storefront::order/cancel-title.phtml"/>
+        </referenceBlock>
+        <referenceBlock name="order-list-extra-action-buttons">
+            <block class="Magento\Framework\View\Element\Template" name="aeromalls.order.cancel.button" as="aeromalls_cancel" template="Aeromalls_Storefront::order/cancel.phtml">
+                <arguments><argument name="view_model" xsi:type="object">Aeromalls\Storefront\ViewModel\OrderCancellation</argument></arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

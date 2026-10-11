@@ -1,0 +1,75 @@
+<?php
+/** @var \Magento\Framework\View\Element\Template $block */
+/** @var \Magento\Framework\Escaper $escaper */
+/** @var \Hyva\Theme\Model\ViewModelRegistry $viewModels */
+$hyvaCsp = $viewModels->require(\Hyva\Theme\ViewModel\HyvaCsp::class);
+?>
+<dialog id="aero-order-cancel-dialog" class="aero-order-cancel-dialog" aria-labelledby="aero-order-cancel-title" aria-describedby="aero-order-cancel-description">
+    <div class="aero-order-cancel-content">
+        <div class="aero-order-cancel-icon" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v6m0 3v1"/></svg></div>
+        <h2 id="aero-order-cancel-title"><?= $escaper->escapeHtml(__('Cancel this order?')) ?></h2>
+        <p class="aero-order-cancel-number"><?= $escaper->escapeHtml(__('Order #')) ?> <strong data-cancel-order-number></strong></p>
+        <p id="aero-order-cancel-description"><?= $escaper->escapeHtml(__('Your order will be canceled. This action cannot be undone.')) ?></p>
+        <form action="<?= $escaper->escapeUrl($block->getUrl('aeromalls/order/cancel')) ?>" method="post">
+            <?= $block->getBlockHtml('formkey') ?>
+            <input type="hidden" name="order_id" value="">
+            <div class="aero-order-cancel-controls">
+                <button type="button" class="aero-order-action" data-close-cancel-dialog autofocus><?= $escaper->escapeHtml(__('Keep order')) ?></button>
+                <button type="submit" class="aero-order-action aero-order-confirm" data-submitting-label="<?= $escaper->escapeHtmlAttr(__('Canceling…')) ?>"><?= $escaper->escapeHtml(__('Yes, cancel order')) ?></button>
+            </div>
+        </form>
+    </div>
+</dialog>
+<script>
+(() => {
+    function initOrderCancelDialog() {
+        const dialog = document.getElementById('aero-order-cancel-dialog');
+        if (!dialog || dialog.dataset.ready) return;
+        dialog.dataset.ready = '1';
+        const form = dialog.querySelector('form');
+        const submit = form.querySelector('[type="submit"]');
+        const submitLabel = submit.textContent;
+        let trigger = null;
+        let previousOverflow = '';
+        document.addEventListener('click', event => {
+            const button = event.target.closest('[data-aero-order-cancel]');
+            if (!button || dialog.open) return;
+            trigger = button;
+            form.elements.order_id.value = button.dataset.orderId;
+            dialog.querySelector('[data-cancel-order-number]').textContent = button.dataset.orderNumber;
+            previousOverflow = document.body.style.overflow;
+            dialog.showModal();
+            document.body.style.overflow = 'hidden';
+        });
+        dialog.querySelector('[data-close-cancel-dialog]').addEventListener('click', () => dialog.close());
+        dialog.addEventListener('click', event => {
+            if (event.target !== dialog || submit.disabled) return;
+            const box = dialog.getBoundingClientRect();
+            if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) dialog.close();
+        });
+        dialog.addEventListener('cancel', event => { if (submit.disabled) event.preventDefault(); });
+        dialog.addEventListener('close', () => {
+            document.body.style.overflow = previousOverflow;
+            if (trigger && trigger.isConnected) trigger.focus();
+        });
+        form.addEventListener('submit', event => {
+            if (submit.disabled) { event.preventDefault(); return; }
+            submit.disabled = true;
+            submit.textContent = submit.dataset.submittingLabel;
+            dialog.querySelector('[data-close-cancel-dialog]').disabled = true;
+            dialog.setAttribute('aria-busy', 'true');
+        });
+        window.addEventListener('pageshow', event => {
+            if (!event.persisted) return;
+            submit.disabled = false;
+            submit.textContent = submitLabel;
+            dialog.querySelector('[data-close-cancel-dialog]').disabled = false;
+            dialog.removeAttribute('aria-busy');
+            if (dialog.open) dialog.close();
+        });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initOrderCancelDialog, {once: true});
+    else initOrderCancelDialog();
+})();
+</script>
+<?php $hyvaCsp->registerInlineScript() ?>

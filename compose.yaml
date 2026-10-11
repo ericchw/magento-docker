@@ -118,6 +118,7 @@ services:
 
   opensearch:
     image: opensearchproject/opensearch:3.3.0
+    restart: unless-stopped
     env_file:
       - ./env/opensearch.env
     ulimits:

@@ -1,0 +1,23 @@
+<?php
+/** @var \Hyva\Theme\ViewModel\HyvaCsp $hyvaCsp */
+?>
+<script>
+(() => {
+ const init = () => document.querySelectorAll('[data-content-type="aeromalls_marquee"]').forEach(root => {
+  if (root.dataset.marqueeReady) return;
+  root.dataset.marqueeReady = '1';
+  if (!root.hasAttribute('data-full-width')) root.dataset.fullWidth = '1';
+  const track = root.querySelector('.aero-marquee-track');
+  const logos = track && track.querySelector('.aero-marquee-logos');
+  if (!logos || !logos.children.length) return;
+  const copy = logos.cloneNode(true);
+  copy.setAttribute('aria-hidden', 'true');
+  copy.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+  copy.querySelectorAll('a,button,[tabindex]').forEach(el => el.setAttribute('tabindex', '-1'));
+  track.appendChild(copy);
+ });
+ if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
+ else init();
+})();
+</script>
+<?php $hyvaCsp->registerInlineScript() ?>
